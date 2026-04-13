@@ -1,0 +1,383 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1D064D38769ABB9DE43BFA47 /* AppleCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E482A886CF03D442330E45EC /* AppleCalendarService.swift */; };
+		6528778B4A13E93C98D07A8F /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD33C2A11DB908DC29E44B /* MenuBarContentView.swift */; };
+		6D6F871796A9955A80B23F9A /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6FB101AC8F413C2BCECC54 /* AppSettings.swift */; };
+		6D90F47A46DED5A9117D1FAA /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5201CE03699B164F49D6E295 /* SyncEngine.swift */; };
+		7A40061B9A28D84680B4DB2D /* SyncMetadataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76E617E9A311F970A231708 /* SyncMetadataStore.swift */; };
+		7E39D6BEA3E1291DCA969164 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC92BAF37F08E111FFFD934 /* AppState.swift */; };
+		7ECA71091D9B67C6EC5BB3EE /* ICalendarRecurrenceParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9127992E9ACE571E1CE4BEAD /* ICalendarRecurrenceParser.swift */; };
+		95025893DBEC64B41F98D251 /* CalendarBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351747A586E8EDAF4581DB88 /* CalendarBridgeApp.swift */; };
+		D0269C7E3BE1FE32BF04534C /* SyncScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C4BFB9B65CF7F8075EF5EE /* SyncScheduler.swift */; };
+		D2CC6D7BBE22EBF192516B46 /* CalendarModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD75C27B6BCA780D1BE618A /* CalendarModels.swift */; };
+		E5DC8B88EF170B9B5ACD3000 /* SyncConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2E9B8CD37CCED0EDE00F15 /* SyncConfigurationView.swift */; };
+		F17C9B08D9295576F0BDF930 /* OutlookScriptService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11538717F6417F7BF1D4682E /* OutlookScriptService.swift */; };
+		FD54AA569D779877D729BB35 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F9BA3E72EE602D7B153ED7 /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		11538717F6417F7BF1D4682E /* OutlookScriptService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlookScriptService.swift; sourceTree = "<group>"; };
+		1BC92BAF37F08E111FFFD934 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		21F9BA3E72EE602D7B153ED7 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		351747A586E8EDAF4581DB88 /* CalendarBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarBridgeApp.swift; sourceTree = "<group>"; };
+		4F197C3FB2F36CDD5760FFF6 /* CalendarBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalendarBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5201CE03699B164F49D6E295 /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
+		70C4BFB9B65CF7F8075EF5EE /* SyncScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncScheduler.swift; sourceTree = "<group>"; };
+		7A6FB101AC8F413C2BCECC54 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		9127992E9ACE571E1CE4BEAD /* ICalendarRecurrenceParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICalendarRecurrenceParser.swift; sourceTree = "<group>"; };
+		ABD75C27B6BCA780D1BE618A /* CalendarModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarModels.swift; sourceTree = "<group>"; };
+		B8BD33C2A11DB908DC29E44B /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		BB2E9B8CD37CCED0EDE00F15 /* SyncConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncConfigurationView.swift; sourceTree = "<group>"; };
+		E482A886CF03D442330E45EC /* AppleCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleCalendarService.swift; sourceTree = "<group>"; };
+		E76E617E9A311F970A231708 /* SyncMetadataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadataStore.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		27284295EF5565A2348C7773 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4F197C3FB2F36CDD5760FFF6 /* CalendarBridge.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		337009337E9D8BF42CC23B75 /* CalendarBridge */ = {
+			isa = PBXGroup;
+			children = (
+				D42910990BEED1C1E4939E85 /* App */,
+				654FA8302DDF6A15AE4C7CAD /* Models */,
+				ECC718FD41B9C716ECF5CF46 /* Services */,
+				94842526A95CDE5E1B1C2C4D /* Views */,
+			);
+			path = CalendarBridge;
+			sourceTree = "<group>";
+		};
+		654FA8302DDF6A15AE4C7CAD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				7A6FB101AC8F413C2BCECC54 /* AppSettings.swift */,
+				ABD75C27B6BCA780D1BE618A /* CalendarModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		86925C7CDF799F70761EB014 = {
+			isa = PBXGroup;
+			children = (
+				337009337E9D8BF42CC23B75 /* CalendarBridge */,
+				27284295EF5565A2348C7773 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		94842526A95CDE5E1B1C2C4D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B8BD33C2A11DB908DC29E44B /* MenuBarContentView.swift */,
+				21F9BA3E72EE602D7B153ED7 /* SettingsView.swift */,
+				BB2E9B8CD37CCED0EDE00F15 /* SyncConfigurationView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D42910990BEED1C1E4939E85 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1BC92BAF37F08E111FFFD934 /* AppState.swift */,
+				351747A586E8EDAF4581DB88 /* CalendarBridgeApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		ECC718FD41B9C716ECF5CF46 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				E482A886CF03D442330E45EC /* AppleCalendarService.swift */,
+				9127992E9ACE571E1CE4BEAD /* ICalendarRecurrenceParser.swift */,
+				11538717F6417F7BF1D4682E /* OutlookScriptService.swift */,
+				5201CE03699B164F49D6E295 /* SyncEngine.swift */,
+				E76E617E9A311F970A231708 /* SyncMetadataStore.swift */,
+				70C4BFB9B65CF7F8075EF5EE /* SyncScheduler.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CCB1D43077C11313D6EFFEEC /* CalendarBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF9EF4CD1170E31DC42A3A62 /* Build configuration list for PBXNativeTarget "CalendarBridge" */;
+			buildPhases = (
+				63853E0CC5406593058EDECB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CalendarBridge;
+			packageProductDependencies = (
+			);
+			productName = CalendarBridge;
+			productReference = 4F197C3FB2F36CDD5760FFF6 /* CalendarBridge.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C83271880D9E2375FC7599A9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					CCB1D43077C11313D6EFFEEC = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C570A59D6357D61E8093CE68 /* Build configuration list for PBXProject "CalendarBridge" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 86925C7CDF799F70761EB014;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 27284295EF5565A2348C7773 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CCB1D43077C11313D6EFFEEC /* CalendarBridge */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		63853E0CC5406593058EDECB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D6F871796A9955A80B23F9A /* AppSettings.swift in Sources */,
+				7E39D6BEA3E1291DCA969164 /* AppState.swift in Sources */,
+				1D064D38769ABB9DE43BFA47 /* AppleCalendarService.swift in Sources */,
+				95025893DBEC64B41F98D251 /* CalendarBridgeApp.swift in Sources */,
+				D2CC6D7BBE22EBF192516B46 /* CalendarModels.swift in Sources */,
+				7ECA71091D9B67C6EC5BB3EE /* ICalendarRecurrenceParser.swift in Sources */,
+				6528778B4A13E93C98D07A8F /* MenuBarContentView.swift in Sources */,
+				F17C9B08D9295576F0BDF930 /* OutlookScriptService.swift in Sources */,
+				FD54AA569D779877D729BB35 /* SettingsView.swift in Sources */,
+				E5DC8B88EF170B9B5ACD3000 /* SyncConfigurationView.swift in Sources */,
+				6D90F47A46DED5A9117D1FAA /* SyncEngine.swift in Sources */,
+				7A40061B9A28D84680B4DB2D /* SyncMetadataStore.swift in Sources */,
+				D0269C7E3BE1FE32BF04534C /* SyncScheduler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0F6C16DFD5E37C490E80CB08 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_NAME = CalendarBridge;
+				SDKROOT = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Release;
+		};
+		18F4B925AACB77908D9F61CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_NAME = CalendarBridge;
+				SDKROOT = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Debug;
+		};
+		6B59DD34A60F29306A7A7B30 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = CalendarBridge;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "CalendarBridge needs permission to read events from Microsoft Outlook.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "CalendarBridge needs calendar access to create and update events in your selected Apple Calendar.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "CalendarBridge needs calendar access to create and update events in your selected Apple Calendar.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.CalendarBridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		951DF12D0FE99DA0582B84FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = CalendarBridge;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "CalendarBridge needs permission to read events from Microsoft Outlook.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "CalendarBridge needs calendar access to create and update events in your selected Apple Calendar.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "CalendarBridge needs calendar access to create and update events in your selected Apple Calendar.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.CalendarBridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C570A59D6357D61E8093CE68 /* Build configuration list for PBXProject "CalendarBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				951DF12D0FE99DA0582B84FB /* Debug */,
+				6B59DD34A60F29306A7A7B30 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EF9EF4CD1170E31DC42A3A62 /* Build configuration list for PBXNativeTarget "CalendarBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18F4B925AACB77908D9F61CC /* Debug */,
+				0F6C16DFD5E37C490E80CB08 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C83271880D9E2375FC7599A9 /* Project object */;
+}
