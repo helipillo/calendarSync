@@ -12,6 +12,7 @@
 		6528778B4A13E93C98D07A8F /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD33C2A11DB908DC29E44B /* MenuBarContentView.swift */; };
 		6D6F871796A9955A80B23F9A /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6FB101AC8F413C2BCECC54 /* AppSettings.swift */; };
 		6D90F47A46DED5A9117D1FAA /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5201CE03699B164F49D6E295 /* SyncEngine.swift */; };
+		79B164928D7EEE94609D0147 /* OutlookFetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB5914E0C6AB886A82A36A5 /* OutlookFetchResult.swift */; };
 		7A40061B9A28D84680B4DB2D /* SyncMetadataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76E617E9A311F970A231708 /* SyncMetadataStore.swift */; };
 		7E39D6BEA3E1291DCA969164 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC92BAF37F08E111FFFD934 /* AppState.swift */; };
 		7ECA71091D9B67C6EC5BB3EE /* ICalendarRecurrenceParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9127992E9ACE571E1CE4BEAD /* ICalendarRecurrenceParser.swift */; };
@@ -38,6 +39,7 @@
 		ABD75C27B6BCA780D1BE618A /* CalendarModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarModels.swift; sourceTree = "<group>"; };
 		B8BD33C2A11DB908DC29E44B /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		BB2E9B8CD37CCED0EDE00F15 /* SyncConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncConfigurationView.swift; sourceTree = "<group>"; };
+		BFB5914E0C6AB886A82A36A5 /* OutlookFetchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlookFetchResult.swift; sourceTree = "<group>"; };
 		C029BD4F8DD17C03EC1BEFCD /* hxstore_extract.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = hxstore_extract.py; sourceTree = "<group>"; };
 		E482A886CF03D442330E45EC /* AppleCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleCalendarService.swift; sourceTree = "<group>"; };
 		E76E617E9A311F970A231708 /* SyncMetadataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadataStore.swift; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 			children = (
 				7A6FB101AC8F413C2BCECC54 /* AppSettings.swift */,
 				ABD75C27B6BCA780D1BE618A /* CalendarModels.swift */,
+				BFB5914E0C6AB886A82A36A5 /* OutlookFetchResult.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -200,6 +203,7 @@
 				ADEC0D505D1CFB97B18669A0 /* HxStoreFallbackService.swift in Sources */,
 				7ECA71091D9B67C6EC5BB3EE /* ICalendarRecurrenceParser.swift in Sources */,
 				6528778B4A13E93C98D07A8F /* MenuBarContentView.swift in Sources */,
+				79B164928D7EEE94609D0147 /* OutlookFetchResult.swift in Sources */,
 				F17C9B08D9295576F0BDF930 /* OutlookScriptService.swift in Sources */,
 				FD54AA569D779877D729BB35 /* SettingsView.swift in Sources */,
 				E5DC8B88EF170B9B5ACD3000 /* SyncConfigurationView.swift in Sources */,

@@ -17,7 +17,8 @@ actor SyncEngine {
 
     func sync(sourceCalendarID: String, destinationCalendarID: String) async throws -> SyncResult {
         let window = SyncWindow.upcomingSevenDays()
-        let records = try await outlookService.fetchEvents(calendarID: sourceCalendarID, window: window)
+        let fetchResult = try await outlookService.fetchEvents(calendarID: sourceCalendarID, window: window)
+        let records = fetchResult.records
         let existingMappings = await metadataStore.mappings(for: destinationCalendarID)
 
         var updatedCount = 0
@@ -61,6 +62,6 @@ actor SyncEngine {
             deletedCount += 1
         }
 
-        return SyncResult(sourceEventCount: records.count, updatedCount: updatedCount, deletedCount: deletedCount)
+        return SyncResult(sourceEventCount: records.count, updatedCount: updatedCount, deletedCount: deletedCount, backendDescription: fetchResult.backendDescription)
     }
 }

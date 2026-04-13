@@ -56,7 +56,11 @@ struct SyncConfigurationView: View {
 
     private var outlookSelection: Binding<String> {
         Binding(
-            get: { appState.settings.selectedOutlookCalendarID },
+            get: {
+                appState.outlookCalendars.contains(where: { $0.id == appState.settings.selectedOutlookCalendarID })
+                    ? appState.settings.selectedOutlookCalendarID
+                    : ""
+            },
             set: { newValue in
                 appState.settings.selectedOutlookCalendarID = newValue
                 appState.saveSettings()
@@ -66,7 +70,11 @@ struct SyncConfigurationView: View {
 
     private var appleSelection: Binding<String> {
         Binding(
-            get: { appState.settings.selectedAppleCalendarID },
+            get: {
+                appState.appleCalendars.contains(where: { $0.id == appState.settings.selectedAppleCalendarID })
+                    ? appState.settings.selectedAppleCalendarID
+                    : ""
+            },
             set: { newValue in
                 appState.settings.selectedAppleCalendarID = newValue
                 appState.saveSettings()

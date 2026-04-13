@@ -59,7 +59,6 @@ actor AppleCalendarService {
         event.isAllDay = record.allDay
         event.location = record.location
         event.notes = buildNotes(from: record)
-        event.url = URL(string: "calendarbridge://sync/\(record.sourceKey.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? record.sourceKey)")
         event.timeZone = record.allDay ? nil : TimeZone.current
         event.recurrenceRules = recurrenceParser.recurrenceRules(from: record.icalendarData)
 

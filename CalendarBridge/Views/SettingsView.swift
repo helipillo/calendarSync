@@ -43,6 +43,25 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Debug Log") {
+                    HStack {
+                        Button("Clear Debug Log") {
+                            appState.clearDebugLog()
+                        }
+                        Spacer()
+                        Text("\(appState.debugLog.count) entries")
+                            .foregroundStyle(.secondary)
+                    }
+
+                    ScrollView {
+                        Text(appState.debugLog.isEmpty ? "No debug messages yet." : appState.debugLog.joined(separator: "\n"))
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+                    .frame(minHeight: 180)
+                }
+
                 Section("Notes") {
                     Text("Recommended: create a dedicated Apple Calendar such as 'Work Outlook Mirror' and select it as the destination.")
                     Text("The app reads Outlook using macOS automation and writes into Apple Calendar using EventKit permissions.")

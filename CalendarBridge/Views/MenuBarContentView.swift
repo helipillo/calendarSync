@@ -56,10 +56,16 @@ struct MenuBarContentView: View {
             Divider()
 
             HStack {
-                Button {
-                    openSettingsWindow()
-                } label: {
-                    Label("Settings", systemImage: "gearshape")
+                if #available(macOS 14.0, *) {
+                    SettingsLink {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                } else {
+                    Button {
+                        openSettingsWindow()
+                    } label: {
+                        Label("Settings", systemImage: "gearshape")
+                    }
                 }
                 Spacer()
                 Button("Quit") {

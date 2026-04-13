@@ -17,7 +17,7 @@ actor OutlookScriptService {
         return try decode([OutlookCalendarRef].self, from: data)
     }
 
-    func fetchEvents(calendarID: String, window: SyncWindow) async throws -> [OutlookEventRecord] {
+    func fetchEvents(calendarID: String, window: SyncWindow) async throws -> OutlookFetchResult {
         do {
             let automationRecords = try await fetchEventsViaAutomation(
                 calendarID: calendarID,
@@ -25,7 +25,7 @@ actor OutlookScriptService {
                 windowEnd: window.endDate
             )
             if !automationRecords.isEmpty {
-                return automationRecords
+                return OutlookFetchResult(records: automationRecords, backendDescription: "Outlook automation")
             }
         } catch {
             let fallbackRecords = try await hxStoreFallbackService.fetchEvents(
@@ -34,16 +34,17 @@ actor OutlookScriptService {
                 windowEnd: window.endDate
             )
             if !fallbackRecords.isEmpty {
-                return fallbackRecords
+                return OutlookFetchResult(records: fallbackRecords, backendDescription: "HxStore fallback after automation error")
             }
             throw error
         }
 
-        return try await hxStoreFallbackService.fetchEvents(
+        let fallbackRecords = try await hxStoreFallbackService.fetchEvents(
             calendarID: calendarID,
             windowStart: window.startDate,
             windowEnd: window.endDate
         )
+        return OutlookFetchResult(records: fallbackRecords, backendDescription: fallbackRecords.isEmpty ? "HxStore fallback (no events found)" : "HxStore fallback")
     }
 
     private func fetchEventsViaAutomation(calendarID: String, windowStart: Date, windowEnd: Date) async throws -> [OutlookEventRecord] {

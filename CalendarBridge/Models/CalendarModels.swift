@@ -36,6 +36,7 @@ struct SyncResult {
     let sourceEventCount: Int
     let updatedCount: Int
     let deletedCount: Int
+    let backendDescription: String
 }
 
 struct SyncWindow {

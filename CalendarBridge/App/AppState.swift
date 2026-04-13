@@ -11,6 +11,7 @@ final class AppState: ObservableObject {
     @Published private(set) var lastSyncMessage = "Not synced yet"
     @Published private(set) var automationStatus = "Waiting for Outlook access"
     @Published private(set) var calendarAccessGranted = false
+    @Published private(set) var debugLog: [String] = []
 
     private let appleCalendarService = AppleCalendarService()
     private let outlookService = OutlookScriptService()
@@ -41,33 +42,40 @@ final class AppState: ObservableObject {
     }
 
     func refreshAll() async {
+        log("Refreshing calendars and permissions")
         await requestCalendarAccessIfNeeded()
         await loadAppleCalendars()
         await loadOutlookCalendars()
         autoSelectDefaultsIfNeeded()
+        log("Refresh complete. Outlook calendars=\(outlookCalendars.count), Apple calendars=\(appleCalendars.count)")
     }
 
     func requestCalendarAccessIfNeeded() async {
         do {
             calendarAccessGranted = try await appleCalendarService.requestAccessIfNeeded()
+            log("Apple Calendar access granted=\(calendarAccessGranted)")
         } catch {
             calendarAccessGranted = false
             lastSyncMessage = "Calendar access failed: \(error.localizedDescription)"
+            log("Apple Calendar access error: \(error.localizedDescription)")
         }
     }
 
     func loadAppleCalendars() async {
         appleCalendars = await appleCalendarService.fetchWritableCalendars()
+        log("Loaded \(appleCalendars.count) writable Apple calendars")
     }
 
     func loadOutlookCalendars() async {
         do {
             outlookCalendars = try await outlookService.fetchCalendars()
             automationStatus = outlookCalendars.isEmpty ? "No Outlook calendars found" : "Outlook connected"
+            log("Loaded \(outlookCalendars.count) Outlook calendars")
         } catch {
             outlookCalendars = []
             automationStatus = "Outlook access failed"
             lastSyncMessage = "Failed to read Outlook calendars: \(error.localizedDescription)"
+            log("Outlook calendar load error: \(error.localizedDescription)")
         }
     }
 
@@ -90,8 +98,13 @@ final class AppState: ObservableObject {
         guard !isSyncing else { return }
         guard settings.isConfigured else {
             lastSyncMessage = "Choose both an Outlook source calendar and an Apple destination calendar"
+            log("Sync skipped because configuration is incomplete")
             return
         }
+
+        log("Starting \(trigger.description.lowercased()) sync")
+        log("Selected Outlook calendar id=\(settings.selectedOutlookCalendarID) name=\(selectedOutlookCalendarName())")
+        log("Selected Apple calendar id=\(settings.selectedAppleCalendarID) name=\(selectedAppleCalendarName())")
 
         isSyncing = true
         defer { isSyncing = false }
@@ -108,13 +121,17 @@ final class AppState: ObservableObject {
             let syncedText = result.updatedCount == 1 ? "1 event" : "\(result.updatedCount) events"
             let deletedText = result.deletedCount == 0 ? "" : ", removed \(result.deletedCount)"
             let triggerText = trigger.description
+            log("Sync backend: \(result.backendDescription)")
+            log("Source events in next 7 days: \(result.sourceEventCount)")
+            log("Updated \(result.updatedCount) events, deleted \(result.deletedCount)")
             if result.sourceEventCount == 0 {
-                lastSyncMessage = "\(triggerText) sync found 0 Outlook events in the next 7 days. This usually means Outlook is exposing the calendar folder but not the event data to automation on this Mac."
+                lastSyncMessage = "\(triggerText) sync found 0 Outlook events in the next 7 days using \(result.backendDescription)."
             } else {
-                lastSyncMessage = "\(triggerText) sync finished: \(syncedText) updated\(deletedText)"
+                lastSyncMessage = "\(triggerText) sync finished via \(result.backendDescription): \(syncedText) updated\(deletedText)"
             }
         } catch {
             lastSyncMessage = "Sync failed: \(error.localizedDescription)"
+            log("Sync failed: \(error.localizedDescription)")
         }
     }
 
@@ -127,14 +144,31 @@ final class AppState: ObservableObject {
     }
 
     private func autoSelectDefaultsIfNeeded() {
-        if settings.selectedOutlookCalendarID.isEmpty, let onlyOutlook = outlookCalendars.first {
-            settings.selectedOutlookCalendarID = onlyOutlook.id
+        if !outlookCalendars.contains(where: { $0.id == settings.selectedOutlookCalendarID }) {
+            settings.selectedOutlookCalendarID = outlookCalendars.first?.id ?? ""
+            log("Adjusted Outlook selection to a valid calendar")
         }
 
-        if settings.selectedAppleCalendarID.isEmpty, let matching = appleCalendars.first(where: { $0.title.localizedCaseInsensitiveContains("outlook") }) ?? appleCalendars.first {
-            settings.selectedAppleCalendarID = matching.id
+        if !appleCalendars.contains(where: { $0.id == settings.selectedAppleCalendarID }) {
+            let matching = appleCalendars.first(where: { $0.title.localizedCaseInsensitiveContains("outlook") }) ?? appleCalendars.first
+            settings.selectedAppleCalendarID = matching?.id ?? ""
+            log("Adjusted Apple Calendar selection to a valid calendar")
         }
 
         settings.save()
+    }
+
+    func clearDebugLog() {
+        debugLog.removeAll()
+    }
+
+    private func log(_ message: String) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        let entry = "[\(formatter.string(from: Date()))] \(message)"
+        debugLog.append(entry)
+        if debugLog.count > 200 {
+            debugLog.removeFirst(debugLog.count - 200)
+        }
     }
 }
