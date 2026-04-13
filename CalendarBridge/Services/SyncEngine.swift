@@ -16,11 +16,23 @@ actor SyncEngine {
     }
 
     func sync(sourceCalendarID: String, destinationCalendarID: String) async throws -> SyncResult {
-        let records = try await outlookService.fetchEvents(calendarID: sourceCalendarID)
+        let window = SyncWindow.upcomingSevenDays()
+        let records = try await outlookService.fetchEvents(calendarID: sourceCalendarID, window: window)
         let existingMappings = await metadataStore.mappings(for: destinationCalendarID)
 
         var updatedCount = 0
         let validSourceKeys = Set(records.map(\.sourceKey))
+
+        let outsideWindowAppleEventIDs = await metadataStore.removeOutsideWindow(
+            destinationCalendarID: destinationCalendarID,
+            window: window
+        )
+
+        var deletedCount = 0
+        for eventID in outsideWindowAppleEventIDs {
+            try await appleCalendarService.removeEvent(withIdentifier: eventID)
+            deletedCount += 1
+        }
 
         for record in records {
             let existingEventID = existingMappings[record.sourceKey]
@@ -32,17 +44,18 @@ actor SyncEngine {
             await metadataStore.save(
                 sourceKey: record.sourceKey,
                 appleEventID: appleEventID,
-                destinationCalendarID: destinationCalendarID
+                destinationCalendarID: destinationCalendarID,
+                sourceStartDate: record.startDate
             )
             updatedCount += 1
         }
 
         let removedAppleEventIDs = await metadataStore.removeMissing(
             validSourceKeys: validSourceKeys,
-            destinationCalendarID: destinationCalendarID
+            destinationCalendarID: destinationCalendarID,
+            window: window
         )
 
-        var deletedCount = 0
         for eventID in removedAppleEventIDs {
             try await appleCalendarService.removeEvent(withIdentifier: eventID)
             deletedCount += 1

@@ -109,7 +109,7 @@ final class AppState: ObservableObject {
             let deletedText = result.deletedCount == 0 ? "" : ", removed \(result.deletedCount)"
             let triggerText = trigger.description
             if result.sourceEventCount == 0 {
-                lastSyncMessage = "\(triggerText) sync found 0 Outlook events. This usually means Outlook is exposing the calendar folder but not the event data to automation on this Mac."
+                lastSyncMessage = "\(triggerText) sync found 0 Outlook events in the next 7 days. This usually means Outlook is exposing the calendar folder but not the event data to automation on this Mac."
             } else {
                 lastSyncMessage = "\(triggerText) sync finished: \(syncedText) updated\(deletedText)"
             }

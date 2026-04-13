@@ -6,6 +6,7 @@ actor SyncMetadataStore {
         var appleEventID: String
         var destinationCalendarID: String
         var lastSeenAt: Date
+        var sourceStartDate: Date?
     }
 
     private let defaults: UserDefaults
@@ -23,17 +24,19 @@ actor SyncMetadataStore {
             }
     }
 
-    func save(sourceKey: String, appleEventID: String, destinationCalendarID: String) {
+    func save(sourceKey: String, appleEventID: String, destinationCalendarID: String, sourceStartDate: Date) {
         var all = loadMappings()
         if let index = all.firstIndex(where: { $0.sourceKey == sourceKey && $0.destinationCalendarID == destinationCalendarID }) {
             all[index].appleEventID = appleEventID
             all[index].lastSeenAt = Date()
+            all[index].sourceStartDate = sourceStartDate
         } else {
             all.append(StoredMapping(
                 sourceKey: sourceKey,
                 appleEventID: appleEventID,
                 destinationCalendarID: destinationCalendarID,
-                lastSeenAt: Date()
+                lastSeenAt: Date(),
+                sourceStartDate: sourceStartDate
             ))
         }
         store(all)
@@ -45,12 +48,44 @@ actor SyncMetadataStore {
         store(all)
     }
 
-    func removeMissing(validSourceKeys: Set<String>, destinationCalendarID: String) -> [String] {
+    func removeMissing(validSourceKeys: Set<String>, destinationCalendarID: String, window: SyncWindow) -> [String] {
         var all = loadMappings()
-        let removed = all.filter { $0.destinationCalendarID == destinationCalendarID && !validSourceKeys.contains($0.sourceKey) }
-        all.removeAll { $0.destinationCalendarID == destinationCalendarID && !validSourceKeys.contains($0.sourceKey) }
+        let removed = all.filter {
+            $0.destinationCalendarID == destinationCalendarID
+                && isWithinWindow($0.sourceStartDate, window: window)
+                && !validSourceKeys.contains($0.sourceKey)
+        }
+        all.removeAll {
+            $0.destinationCalendarID == destinationCalendarID
+                && isWithinWindow($0.sourceStartDate, window: window)
+                && !validSourceKeys.contains($0.sourceKey)
+        }
         store(all)
         return removed.map(\.appleEventID)
+    }
+
+    func removeOutsideWindow(destinationCalendarID: String, window: SyncWindow) -> [String] {
+        var all = loadMappings()
+        let removed = all.filter {
+            $0.destinationCalendarID == destinationCalendarID
+                && shouldRemoveOutsideWindow($0.sourceStartDate, window: window)
+        }
+        all.removeAll {
+            $0.destinationCalendarID == destinationCalendarID
+                && shouldRemoveOutsideWindow($0.sourceStartDate, window: window)
+        }
+        store(all)
+        return removed.map(\.appleEventID)
+    }
+
+    private func isWithinWindow(_ date: Date?, window: SyncWindow) -> Bool {
+        guard let date else { return false }
+        return window.contains(date)
+    }
+
+    private func shouldRemoveOutsideWindow(_ date: Date?, window: SyncWindow) -> Bool {
+        guard let date else { return true }
+        return !window.contains(date)
     }
 
     private func loadMappings() -> [StoredMapping] {

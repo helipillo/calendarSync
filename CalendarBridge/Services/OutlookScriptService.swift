@@ -1,11 +1,6 @@
 import Foundation
 
 actor OutlookScriptService {
-    private enum Constants {
-        static let historyLookbackDays = 30
-        static let futureHorizonDays = 365
-    }
-
     private let hxStoreFallbackService = HxStoreFallbackService()
 
     func fetchCalendars() async throws -> [OutlookCalendarRef] {
@@ -22,15 +17,12 @@ actor OutlookScriptService {
         return try decode([OutlookCalendarRef].self, from: data)
     }
 
-    func fetchEvents(calendarID: String) async throws -> [OutlookEventRecord] {
-        let windowStart = Calendar.current.date(byAdding: .day, value: -Constants.historyLookbackDays, to: Date()) ?? Date()
-        let windowEnd = Calendar.current.date(byAdding: .day, value: Constants.futureHorizonDays, to: Date()) ?? Date()
-
+    func fetchEvents(calendarID: String, window: SyncWindow) async throws -> [OutlookEventRecord] {
         do {
             let automationRecords = try await fetchEventsViaAutomation(
                 calendarID: calendarID,
-                windowStart: windowStart,
-                windowEnd: windowEnd
+                windowStart: window.startDate,
+                windowEnd: window.endDate
             )
             if !automationRecords.isEmpty {
                 return automationRecords
@@ -38,8 +30,8 @@ actor OutlookScriptService {
         } catch {
             let fallbackRecords = try await hxStoreFallbackService.fetchEvents(
                 calendarID: calendarID,
-                windowStart: windowStart,
-                windowEnd: windowEnd
+                windowStart: window.startDate,
+                windowEnd: window.endDate
             )
             if !fallbackRecords.isEmpty {
                 return fallbackRecords
@@ -49,8 +41,8 @@ actor OutlookScriptService {
 
         return try await hxStoreFallbackService.fetchEvents(
             calendarID: calendarID,
-            windowStart: windowStart,
-            windowEnd: windowEnd
+            windowStart: window.startDate,
+            windowEnd: window.endDate
         )
     }
 

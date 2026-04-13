@@ -37,3 +37,18 @@ struct SyncResult {
     let updatedCount: Int
     let deletedCount: Int
 }
+
+struct SyncWindow {
+    let startDate: Date
+    let endDate: Date
+
+    static func upcomingSevenDays(referenceDate: Date = Date(), calendar: Calendar = .current) -> SyncWindow {
+        let startDate = calendar.startOfDay(for: referenceDate)
+        let endDate = calendar.date(byAdding: .day, value: 7, to: startDate) ?? startDate.addingTimeInterval(7 * 24 * 60 * 60)
+        return SyncWindow(startDate: startDate, endDate: endDate)
+    }
+
+    func contains(_ date: Date) -> Bool {
+        date >= startDate && date < endDate
+    }
+}
