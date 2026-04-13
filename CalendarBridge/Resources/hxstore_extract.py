@@ -66,6 +66,7 @@ CANCEL_PREFIXES = (
     "declined:",
     "tentative:",
 )
+HEADER_MARKER = "040000008200E00074C5B7101A82E008"
 BAD_PHRASES = (
     "This meeting will take place",
     "As announced",
@@ -211,7 +212,7 @@ def extract_events(
                 continue
 
             record_format = struct.unpack_from("<I", raw, 8)[0]
-            if record_format != 400:
+            if record_format not in {400, 416}:
                 if size_a > SLOT_DATA_SIZE:
                     total_bytes = SLOT_HEADER_SIZE + size_a
                     skip_until = slot_num + (total_bytes + SLOT_SIZE - 1) // SLOT_SIZE - 1
@@ -219,6 +220,24 @@ def extract_events(
 
             record_id = extract_record_id(raw)
             decompressed = lz4_block_decompress_lenient(raw[8:], max(size_b - 8, 0))
+
+            if record_format == 416:
+                bundle_times = [corrected_start_date(value) for value in extract_all_display_times(decompressed) if window_start <= value <= window_end]
+                bundle_chunks = split_bundled_strings(extract_utf16_strings(decompressed))
+                for index, chunk in enumerate(bundle_chunks[: len(bundle_times)]):
+                    append_event(
+                        events=events,
+                        seen_keys=seen_keys,
+                        record_id=f"{record_id}-{index}",
+                        requested_calendar_id=requested_calendar_id,
+                        strings=chunk,
+                        start_date=bundle_times[index],
+                    )
+                if size_a > SLOT_DATA_SIZE:
+                    total_bytes = SLOT_HEADER_SIZE + size_a
+                    skip_until = slot_num + (total_bytes + SLOT_SIZE - 1) // SLOT_SIZE - 1
+                continue
+
             start_date = extract_display_time(decompressed)
             if start_date is None or start_date < window_start or start_date > window_end:
                 if size_a > SLOT_DATA_SIZE:
@@ -227,44 +246,13 @@ def extract_events(
                 continue
 
             start_date = corrected_start_date(start_date)
-
-            strings = extract_utf16_strings(decompressed)
-            subject, score = choose_subject(strings)
-            if not subject or score < 4:
-                if size_a > SLOT_DATA_SIZE:
-                    total_bytes = SLOT_HEADER_SIZE + size_a
-                    skip_until = slot_num + (total_bytes + SLOT_SIZE - 1) // SLOT_SIZE - 1
-                continue
-
-            if subject.lower().startswith(CANCEL_PREFIXES) or "@" in subject or EMAIL_RE.search(subject):
-                if size_a > SLOT_DATA_SIZE:
-                    total_bytes = SLOT_HEADER_SIZE + size_a
-                    skip_until = slot_num + (total_bytes + SLOT_SIZE - 1) // SLOT_SIZE - 1
-                continue
-
-            dedupe_key = (subject, start_date.isoformat())
-            if dedupe_key in seen_keys:
-                continue
-            seen_keys.add(dedupe_key)
-
-            end_date = infer_end_date(subject, start_date)
-            location = extract_location(strings, subject)
-            notes = extract_notes(strings, subject)
-
-            events.append(
-                {
-                    "recordID": str(record_id),
-                    "sourceCalendarID": requested_calendar_id,
-                    "sourceCalendarName": "Outlook HxStore",
-                    "subject": subject,
-                    "startDate": start_date.isoformat(),
-                    "endDate": end_date.isoformat(),
-                    "location": location,
-                    "notes": notes,
-                    "allDay": False,
-                    "modificationDate": None,
-                    "icalendarData": None,
-                }
+            append_event(
+                events=events,
+                seen_keys=seen_keys,
+                record_id=str(record_id),
+                requested_calendar_id=requested_calendar_id,
+                strings=extract_utf16_strings(decompressed),
+                start_date=start_date,
             )
 
             if size_a > SLOT_DATA_SIZE:
@@ -273,6 +261,64 @@ def extract_events(
 
     events.sort(key=lambda item: item["startDate"])
     return events
+
+
+def append_event(
+    events: list[dict[str, Any]],
+    seen_keys: set[tuple[str, str]],
+    record_id: str,
+    requested_calendar_id: str,
+    strings: list[str],
+    start_date: datetime,
+) -> None:
+    subject, score = choose_subject(strings)
+    if not subject or score < 4:
+        return
+    if subject.lower().startswith(CANCEL_PREFIXES) or "@" in subject or EMAIL_RE.search(subject):
+        return
+
+    dedupe_key = (subject, start_date.isoformat())
+    if dedupe_key in seen_keys:
+        return
+    seen_keys.add(dedupe_key)
+
+    end_date = infer_end_date(subject, start_date)
+    location = extract_location(strings, subject)
+    notes = extract_notes(strings, subject)
+
+    events.append(
+        {
+            "recordID": str(record_id),
+            "sourceCalendarID": requested_calendar_id,
+            "sourceCalendarName": "Outlook HxStore",
+            "subject": subject,
+            "startDate": start_date.isoformat(),
+            "endDate": end_date.isoformat(),
+            "location": location,
+            "notes": notes,
+            "allDay": False,
+            "modificationDate": None,
+            "icalendarData": None,
+        }
+    )
+
+
+def split_bundled_strings(strings: list[str]) -> list[list[str]]:
+    chunks: list[list[str]] = []
+    current: list[str] = []
+
+    for value in strings:
+        if HEADER_MARKER in value:
+            if current:
+                chunks.append(current)
+                current = []
+            continue
+        current.append(value)
+
+    if current:
+        chunks.append(current)
+
+    return chunks if chunks else [strings]
 
 
 def extract_record_id(raw_data: bytes) -> int:
@@ -337,23 +383,29 @@ def ticks_to_datetime(ticks: int) -> datetime:
     return datetime(1, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=ticks / DOTNET_TICKS_PER_SECOND)
 
 
-def extract_display_time(data: bytes) -> datetime | None:
+def extract_all_display_times(data: bytes) -> list[datetime]:
     position = 0
+    values: list[datetime] = []
     while True:
         index = data.find(DOTNET_SENTINEL, position)
         if index == -1:
-            return None
+            return values
         timestamp_offset = index + 8
         if timestamp_offset + 16 > len(data):
-            return None
+            return values
 
         ticks = struct.unpack_from("<q", data, timestamp_offset)[0]
         if DOTNET_TICKS_MIN <= ticks <= DOTNET_TICKS_MAX and data[timestamp_offset + 8 : timestamp_offset + 16] == DOTNET_SENTINEL:
             try:
-                return ticks_to_datetime(ticks)
+                values.append(ticks_to_datetime(ticks))
             except Exception:
                 pass
         position = index + 1
+
+
+def extract_display_time(data: bytes) -> datetime | None:
+    all_values = extract_all_display_times(data)
+    return all_values[0] if all_values else None
 
 
 def corrected_start_date(start_date: datetime) -> datetime:
