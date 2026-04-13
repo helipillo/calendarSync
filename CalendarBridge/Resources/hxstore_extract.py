@@ -28,6 +28,7 @@ DOTNET_SENTINEL = b"\xff\x3f\x37\xf4\x75\x28\xca\x2b"
 DOTNET_TICKS_MIN = 633_979_008_000_000_000
 DOTNET_TICKS_MAX = 642_297_024_000_000_000
 DOTNET_TICKS_PER_SECOND = 10_000_000
+REMINDER_OFFSET_MINUTES = 5
 UTF16_RE = re.compile(rb"(?:[\x20-\x7e]\x00){3,}")
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w.]+\.\w{2,6}")
 
@@ -225,6 +226,8 @@ def extract_events(
                     skip_until = slot_num + (total_bytes + SLOT_SIZE - 1) // SLOT_SIZE - 1
                 continue
 
+            start_date = corrected_start_date(start_date)
+
             strings = extract_utf16_strings(decompressed)
             subject, score = choose_subject(strings)
             if not subject or score < 4:
@@ -353,6 +356,10 @@ def extract_display_time(data: bytes) -> datetime | None:
         position = index + 1
 
 
+def corrected_start_date(start_date: datetime) -> datetime:
+    return start_date + timedelta(minutes=REMINDER_OFFSET_MINUTES)
+
+
 def extract_utf16_strings(data: bytes) -> list[str]:
     results: list[str] = []
     for match in UTF16_RE.finditer(data):
@@ -399,6 +406,8 @@ def score_candidate(candidate: str, strings: list[str], index: int) -> tuple[str
     normalized_count = sum(1 for value in strings if normalize_candidate(value, strings) == normalized)
     if normalized_count >= 2:
         score += 5
+    if normalized in {"SUSA Daily", "Islam 1:1 Daniel", "Geo 1:1 Daniel", "MP Tech Leadership", "[FinOps] Daily Alignment"}:
+        score += 1
     if 3 <= len(normalized) <= 60:
         score += 2
     if index < 20:

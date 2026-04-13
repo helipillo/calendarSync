@@ -124,6 +124,13 @@ final class AppState: ObservableObject {
             log("Sync backend: \(result.backendDescription)")
             log("Source events in next 7 days: \(result.sourceEventCount)")
             log("Updated \(result.updatedCount) events, deleted \(result.deletedCount)")
+            let previewEvents = try await outlookService.fetchEvents(
+                calendarID: settings.selectedOutlookCalendarID,
+                window: SyncWindow.upcomingSevenDays()
+            )
+            for record in previewEvents.records.prefix(10) {
+                log("Source preview: \(Self.debugDateFormatter.string(from: record.startDate)) | \(record.subject)")
+            }
             if result.sourceEventCount == 0 {
                 lastSyncMessage = "\(triggerText) sync found 0 Outlook events in the next 7 days using \(result.backendDescription)."
             } else {
@@ -163,12 +170,23 @@ final class AppState: ObservableObject {
     }
 
     private func log(_ message: String) {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss"
-        let entry = "[\(formatter.string(from: Date()))] \(message)"
+        let entry = "[\(Self.logTimeFormatter.string(from: Date()))] \(message)"
         debugLog.append(entry)
         if debugLog.count > 200 {
             debugLog.removeFirst(debugLog.count - 200)
         }
     }
+
+    private static let logTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return formatter
+    }()
+
+    private static let debugDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
+    }()
 }
