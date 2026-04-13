@@ -10,6 +10,7 @@ Native macOS menu bar app built with SwiftUI that syncs one Microsoft Outlook ca
 - Force update button
 - Automatic scheduled sync
 - Syncs through macOS automation for Outlook and EventKit for Apple Calendar
+- Falls back to Outlook's local HxStore database when automation exposes calendars but not event contents
 - Mirrors recurring rules when Outlook exposes valid iCalendar recurrence data
 
 ## Requirements
@@ -31,4 +32,6 @@ xcodebuild -project CalendarBridge.xcodeproj -scheme CalendarBridge -configurati
 ## Notes
 - Recommended destination is a dedicated Apple Calendar like `Work Outlook Mirror`.
 - The app tracks events it created and updates or removes only those mirrored events.
+- If Outlook automation returns no events, CalendarBridge can use the local `HxStore.hxd` Outlook cache as a fallback.
+- HxStore fallback is heuristic. Subjects and start times are reliable enough for practical use, but end times may be estimated for some meetings.
 - Very complex recurring exceptions or edge cases from Outlook may still need future refinement.

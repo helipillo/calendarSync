@@ -6,6 +6,8 @@ actor OutlookScriptService {
         static let futureHorizonDays = 365
     }
 
+    private let hxStoreFallbackService = HxStoreFallbackService()
+
     func fetchCalendars() async throws -> [OutlookCalendarRef] {
         let script = """
         const outlook = Application('Microsoft Outlook');
@@ -21,10 +23,42 @@ actor OutlookScriptService {
     }
 
     func fetchEvents(calendarID: String) async throws -> [OutlookEventRecord] {
+        let windowStart = Calendar.current.date(byAdding: .day, value: -Constants.historyLookbackDays, to: Date()) ?? Date()
+        let windowEnd = Calendar.current.date(byAdding: .day, value: Constants.futureHorizonDays, to: Date()) ?? Date()
+
+        do {
+            let automationRecords = try await fetchEventsViaAutomation(
+                calendarID: calendarID,
+                windowStart: windowStart,
+                windowEnd: windowEnd
+            )
+            if !automationRecords.isEmpty {
+                return automationRecords
+            }
+        } catch {
+            let fallbackRecords = try await hxStoreFallbackService.fetchEvents(
+                calendarID: calendarID,
+                windowStart: windowStart,
+                windowEnd: windowEnd
+            )
+            if !fallbackRecords.isEmpty {
+                return fallbackRecords
+            }
+            throw error
+        }
+
+        return try await hxStoreFallbackService.fetchEvents(
+            calendarID: calendarID,
+            windowStart: windowStart,
+            windowEnd: windowEnd
+        )
+    }
+
+    private func fetchEventsViaAutomation(calendarID: String, windowStart: Date, windowEnd: Date) async throws -> [OutlookEventRecord] {
         let payload = [
             "calendarID": calendarID,
-            "windowStart": isoString(for: Calendar.current.date(byAdding: .day, value: -Constants.historyLookbackDays, to: Date()) ?? Date()),
-            "windowEnd": isoString(for: Calendar.current.date(byAdding: .day, value: Constants.futureHorizonDays, to: Date()) ?? Date())
+            "windowStart": isoString(for: windowStart),
+            "windowEnd": isoString(for: windowEnd)
         ]
 
         let payloadData = try JSONSerialization.data(withJSONObject: payload, options: [])
