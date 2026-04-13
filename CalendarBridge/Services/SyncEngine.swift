@@ -48,6 +48,6 @@ actor SyncEngine {
             deletedCount += 1
         }
 
-        return SyncResult(updatedCount: updatedCount, deletedCount: deletedCount)
+        return SyncResult(sourceEventCount: records.count, updatedCount: updatedCount, deletedCount: deletedCount)
     }
 }

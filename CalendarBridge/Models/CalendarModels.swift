@@ -33,6 +33,7 @@ struct OutlookEventRecord: Hashable, Codable {
 }
 
 struct SyncResult {
+    let sourceEventCount: Int
     let updatedCount: Int
     let deletedCount: Int
 }
