@@ -5,6 +5,8 @@ actor AppleCalendarService {
     private let eventStore = EKEventStore()
     private let markerPrefix = "[CalendarBridge source="
     private let recurrenceParser = ICalendarRecurrenceParser()
+    private let cleanupLookbackDays = 30
+    private let cleanupFutureDays = 365
 
     func requestAccessIfNeeded() async throws -> Bool {
         if #available(macOS 14.0, *) {
@@ -20,6 +22,78 @@ actor AppleCalendarService {
                 }
             }
         }
+    }
+
+    func mirroredEventIdentifiers(destinationCalendarID: String, window: SyncWindow) -> [String: String] {
+        guard let calendar = eventStore.calendar(withIdentifier: destinationCalendarID) else {
+            return [:]
+        }
+
+        let predicate = eventStore.predicateForEvents(
+            withStart: window.startDate,
+            end: window.endDate,
+            calendars: [calendar]
+        )
+
+        return eventStore.events(matching: predicate).reduce(into: [:]) { partialResult, event in
+            guard let notes = event.notes,
+                  let sourceKey = extractSourceKey(from: notes),
+                  let eventID = event.eventIdentifier else {
+                return
+            }
+            partialResult[sourceKey] = eventID
+        }
+    }
+
+    func removeMirroredEventsNotIn(destinationCalendarID: String, window: SyncWindow, validSourceKeys: Set<String>) throws -> Int {
+        guard let calendar = eventStore.calendar(withIdentifier: destinationCalendarID) else {
+            return 0
+        }
+
+        let predicate = eventStore.predicateForEvents(
+            withStart: window.startDate,
+            end: window.endDate,
+            calendars: [calendar]
+        )
+
+        var deletedCount = 0
+        for event in eventStore.events(matching: predicate) {
+            guard let notes = event.notes,
+                  let sourceKey = extractSourceKey(from: notes),
+                  !validSourceKeys.contains(sourceKey) else {
+                continue
+            }
+            try eventStore.remove(event, span: .thisEvent, commit: true)
+            deletedCount += 1
+        }
+        return deletedCount
+    }
+
+    func removeMirroredEventsOutsideWindow(destinationCalendarID: String, window: SyncWindow) throws -> Int {
+        guard let calendar = eventStore.calendar(withIdentifier: destinationCalendarID) else {
+            return 0
+        }
+
+        let searchStart = Calendar.current.date(byAdding: .day, value: -cleanupLookbackDays, to: window.startDate) ?? window.startDate
+        let searchEnd = Calendar.current.date(byAdding: .day, value: cleanupFutureDays, to: window.endDate) ?? window.endDate
+        let predicate = eventStore.predicateForEvents(
+            withStart: searchStart,
+            end: searchEnd,
+            calendars: [calendar]
+        )
+
+        var deletedCount = 0
+        for event in eventStore.events(matching: predicate) {
+            guard let notes = event.notes,
+                  extractSourceKey(from: notes) != nil,
+                  let startDate = event.startDate,
+                  !window.contains(startDate) else {
+                continue
+            }
+            try eventStore.remove(event, span: .thisEvent, commit: true)
+            deletedCount += 1
+        }
+        return deletedCount
     }
 
     func fetchWritableCalendars() -> [AppleCalendarRef] {
@@ -85,6 +159,14 @@ actor AppleCalendarService {
         }
 
         return body + "\n\n" + sourceLine
+    }
+
+    private func extractSourceKey(from notes: String) -> String? {
+        guard let startRange = notes.range(of: markerPrefix),
+              let endRange = notes.range(of: "]", range: startRange.upperBound..<notes.endIndex) else {
+            return nil
+        }
+        return String(notes[startRange.upperBound..<endRange.lowerBound])
     }
 }
 
