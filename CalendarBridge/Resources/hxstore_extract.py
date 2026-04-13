@@ -357,7 +357,12 @@ def extract_display_time(data: bytes) -> datetime | None:
 
 
 def corrected_start_date(start_date: datetime) -> datetime:
-    return start_date + timedelta(minutes=REMINDER_OFFSET_MINUTES)
+    adjusted = start_date + timedelta(minutes=REMINDER_OFFSET_MINUTES)
+    remainder = adjusted.minute % 15
+    if remainder in {5, 10}:
+        adjusted += timedelta(minutes=(15 - remainder))
+        adjusted = adjusted.replace(second=0, microsecond=0)
+    return adjusted
 
 
 def extract_utf16_strings(data: bytes) -> list[str]:
