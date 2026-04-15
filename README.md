@@ -1,72 +1,94 @@
 # CalendarBridge
 
-CalendarBridge is a native macOS menu bar app that syncs events between calendars using EventKit.
+CalendarBridge is a macOS menu bar app that keeps two calendars in sync.
+
+It is designed for people who want events copied from one calendar to another automatically, without manual re-entry.
 
 ## What it does
-- Runs as a menu bar app (no main window)
-- Syncs from a selected source calendar to a destination calendar
-- Supports source type:
-  - Apple Calendar (recommended, including Exchange calendars visible in macOS Calendar)
-  - Outlook (legacy path)
-- Optional **bidirectional** mode for Apple calendars
-  - Edits sync both ways
-  - Deletions sync only **Source → Destination** (source is protected)
-- Sync window options: 7, 14, or 30 days
-- Sync frequency: 1h, 4h, 12h, 24h
-- Force sync from menu
 
-## Requirements
-- macOS 13+
-- Calendar access granted
-- If using Outlook source: Outlook for Mac + automation permission
+- Runs from the macOS menu bar
+- Syncs events between a selected **Source** and **Destination** calendar
+- Supports Apple Calendar sources (including Exchange calendars visible in macOS Calendar)
+- Optional **Bidirectional sync** for Apple calendars
+- Lets you choose:
+  - Sync frequency (1h, 4h, 12h, 24h)
+  - Sync window (7, 14, 30 days)
 
-## Build locally
-```bash
-xcodebuild \
-  -project CalendarBridge.xcodeproj \
-  -scheme CalendarBridge \
-  -configuration Debug \
-  -destination 'platform=macOS' \
-  CODE_SIGNING_ALLOWED=NO \
-  build
-```
+### Sync rules
 
-Open in Xcode:
-```bash
-open CalendarBridge.xcodeproj
-```
+- **Create/Update** events sync based on your mode
+- In **Bidirectional sync**, edits can flow both ways
+- **Deletions sync only Source → Destination** (source is protected)
 
 ---
 
-## GitHub Releases (first releasable version)
-This repo includes a GitHub Actions workflow to build release artifacts on tag push.
+## Install
 
-Workflow file:
-- `.github/workflows/macos-release.yml`
-
-Artifacts produced:
-- `CalendarBridge-<tag>-macos-unsigned.dmg`
-- `CalendarBridge-<tag>-macos-unsigned.zip`
-- `SHA256SUMS.txt`
-
-### Create a release
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-The workflow will build and publish a GitHub pre-release with artifacts.
-
-## Install (end users)
-1. Download `.dmg` (recommended) or `.zip` from GitHub Releases.
-2. Move `CalendarBridge.app` to `/Applications`.
-3. First launch: right-click app, choose **Open**.
-
-Note: this first public version is unsigned, so macOS may show a security prompt.
+1. Open this repository’s **Releases** page.
+2. Download the latest macOS build (`.dmg` recommended, `.zip` also available).
+3. Install:
+   - `.dmg`: drag `CalendarBridge.app` to **Applications**
+   - `.zip`: unzip and move `CalendarBridge.app` to **Applications**
+4. Open CalendarBridge from Applications.
 
 ---
 
-## Future stable distribution (recommended)
-For frictionless install, use the signed workflow:
-- `.github/workflows/macos-release-signed.yml`
-- setup guide: `docs/RELEASE_SIGNING.md`
+## First launch (macOS security prompt)
+
+If the app is unsigned, macOS may block first launch.
+
+Use one of these:
+
+- In Finder → Applications, right-click **CalendarBridge** → **Open**
+- Or System Settings → **Privacy & Security** → **Open Anyway**
+
+---
+
+## Setup in the app
+
+1. Grant **Calendar access** when prompted.
+2. Choose your **Source calendar**.
+3. Choose your **Destination calendar**.
+4. (Optional) Enable **Bidirectional sync**.
+5. Choose sync frequency and sync window.
+6. Click **Sync Now** (or wait for scheduled sync).
+
+---
+
+## Troubleshooting
+
+### I do not see my calendars
+- Make sure accounts are added in macOS Calendar
+- Reopen CalendarBridge
+- Confirm permission in System Settings → Privacy & Security → Calendars
+
+### Events are not syncing
+- Verify source and destination are correct
+- Ensure source and destination are not the same calendar
+- Check whether bidirectional mode is on/off as expected
+- Trigger **Sync Now** once to test
+
+### App won’t open
+- Use the first-launch Gatekeeper steps above
+
+---
+
+## Privacy
+
+CalendarBridge uses macOS Calendar/EventKit permissions to read and write only selected calendars.
+
+- No CalendarBridge account required
+- Data is processed locally by the app
+- You can revoke access anytime in macOS privacy settings
+
+---
+
+## Uninstall
+
+1. Quit CalendarBridge from the menu bar.
+2. Delete `CalendarBridge.app` from Applications.
+3. (Optional) Remove Calendar permission in macOS settings.
+
+---
+
+For maintainers/release automation docs, see `docs/RELEASE_SIGNING.md`.
