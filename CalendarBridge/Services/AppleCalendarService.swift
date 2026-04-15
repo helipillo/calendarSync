@@ -9,17 +9,19 @@ actor AppleCalendarService {
     private let cleanupFutureDays = 365
 
     func requestAccessIfNeeded() async throws -> Bool {
-        if #available(macOS 14.0, *) {
-            return try await eventStore.requestFullAccessToEvents()
-        }
-
-        return try await withCheckedThrowingContinuation { continuation in
-            eventStore.requestAccess(to: .event) { granted, error in
+        try await withCheckedThrowingContinuation { continuation in
+            let finish: (Bool, Error?) -> Void = { granted, error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
                     continuation.resume(returning: granted)
                 }
+            }
+
+            if #available(macOS 14.0, *) {
+                eventStore.requestFullAccessToEvents(completion: finish)
+            } else {
+                eventStore.requestAccess(to: .event, completion: finish)
             }
         }
     }
