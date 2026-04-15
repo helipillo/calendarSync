@@ -50,6 +50,7 @@ actor AppleCalendarService {
             return 0
         }
 
+        let now = Date()
         let predicate = eventStore.predicateForEvents(
             withStart: window.startDate,
             end: window.endDate,
@@ -60,7 +61,8 @@ actor AppleCalendarService {
         for event in eventStore.events(matching: predicate) {
             guard let notes = event.notes,
                   let sourceKey = extractSourceKey(from: notes),
-                  !validSourceKeys.contains(sourceKey) else {
+                  !validSourceKeys.contains(sourceKey),
+                  event.startDate >= now else {
                 continue
             }
             try eventStore.remove(event, span: .thisEvent, commit: true)
@@ -74,6 +76,7 @@ actor AppleCalendarService {
             return 0
         }
 
+        let now = Date()
         let searchStart = Calendar.current.date(byAdding: .day, value: -cleanupLookbackDays, to: window.startDate) ?? window.startDate
         let searchEnd = Calendar.current.date(byAdding: .day, value: cleanupFutureDays, to: window.endDate) ?? window.endDate
         let predicate = eventStore.predicateForEvents(
@@ -87,7 +90,8 @@ actor AppleCalendarService {
             guard let notes = event.notes,
                   extractSourceKey(from: notes) != nil,
                   let startDate = event.startDate,
-                  !window.contains(startDate) else {
+                  !window.contains(startDate),
+                  startDate >= now else {
                 continue
             }
             try eventStore.remove(event, span: .thisEvent, commit: true)
@@ -112,6 +116,68 @@ actor AppleCalendarService {
                 }
                 return $0.sourceTitle.localizedCaseInsensitiveCompare($1.sourceTitle) == .orderedAscending
             }
+    }
+
+    func fetchReadableCalendars() -> [AppleCalendarRef] {
+        let allCalendars = Array(eventStore.calendars(for: .event))
+        let result = allCalendars.map { cal in
+            AppleCalendarRef(
+                id: cal.calendarIdentifier,
+                title: cal.title,
+                sourceTitle: cal.source.title
+            )
+        }
+        return result.sorted {
+            if $0.sourceTitle == $1.sourceTitle {
+                return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+            }
+            return $0.sourceTitle.localizedCaseInsensitiveCompare($1.sourceTitle) == .orderedAscending
+        }
+    }
+
+    func fetchEvents(calendarID: String, window: SyncWindow, destinationCalendarID: String?) -> [SyncEventRecord] {
+        guard let calendar = eventStore.calendar(withIdentifier: calendarID) else {
+            return []
+        }
+
+        let predicate = eventStore.predicateForEvents(
+            withStart: window.startDate,
+            end: window.endDate,
+            calendars: [calendar]
+        )
+
+        let allEvents = eventStore.events(matching: predicate)
+        var result: [SyncEventRecord] = []
+        for event in allEvents {
+            guard let eventID = event.eventIdentifier else { continue }
+
+            if let destinationCalendarID,
+               isMirroredFromCalendar(event: event, calendarID: destinationCalendarID) {
+                continue
+            }
+
+            result.append(SyncEventRecord(
+                sourceCalendarID: calendarID,
+                sourceCalendarName: calendar.title,
+                eventID: eventID,
+                subject: event.title ?? "",
+                startDate: event.startDate,
+                endDate: event.endDate,
+                location: event.location,
+                notes: event.notes,
+                allDay: event.isAllDay,
+                modificationDate: event.lastModifiedDate
+            ))
+        }
+        return result
+    }
+
+    private func isMirroredFromCalendar(event: EKEvent, calendarID: String) -> Bool {
+        guard let notes = event.notes,
+              let sourceKey = extractSourceKey(from: notes) else {
+            return false
+        }
+        return sourceKey.hasPrefix("apple:\(calendarID):")
     }
 
     func upsertEvent(record: OutlookEventRecord, destinationCalendarID: String, existingEventID: String?) throws -> String {
@@ -148,6 +214,47 @@ actor AppleCalendarService {
     func removeEvent(withIdentifier identifier: String) throws {
         guard let event = eventStore.event(withIdentifier: identifier) else { return }
         try eventStore.remove(event, span: .thisEvent, commit: true)
+    }
+
+    func upsertEvent(record: SyncEventRecord, destinationCalendarID: String, existingEventID: String?) throws -> String {
+        guard let calendar = eventStore.calendar(withIdentifier: destinationCalendarID) else {
+            throw SyncError.destinationCalendarMissing
+        }
+
+        let event: EKEvent
+        if let existingEventID, let existing = eventStore.event(withIdentifier: existingEventID) {
+            event = existing
+        } else {
+            event = EKEvent(eventStore: eventStore)
+        }
+
+        event.calendar = calendar
+        event.title = record.subject.isEmpty ? "(No title)" : record.subject
+        event.startDate = record.startDate
+        event.endDate = record.endDate
+        event.isAllDay = record.allDay
+        event.location = record.location
+        event.notes = buildNotes(from: record)
+        event.timeZone = record.allDay ? nil : TimeZone.current
+
+        try eventStore.save(event, span: .thisEvent, commit: true)
+
+        guard let eventID = event.eventIdentifier else {
+            throw SyncError.failedToPersistEventIdentifier
+        }
+
+        return eventID
+    }
+
+    private func buildNotes(from record: SyncEventRecord) -> String {
+        let sourceLine = "\(markerPrefix)\(record.sourceKey)]"
+        let body = (record.notes ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if body.isEmpty {
+            return sourceLine
+        }
+
+        return body + "\n\n" + sourceLine
     }
 
     private func buildNotes(from record: OutlookEventRecord) -> String {

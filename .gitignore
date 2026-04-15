@@ -11,3 +11,4 @@ build/
 
 # SwiftPM
 .build/
+/calendarSync/

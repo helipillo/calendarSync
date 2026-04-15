@@ -11,6 +11,29 @@ struct AppleCalendarRef: Identifiable, Hashable {
     let sourceTitle: String
 }
 
+struct SyncEventRecord: Hashable, Codable {
+    let sourceCalendarID: String
+    let sourceCalendarName: String
+    let eventID: String
+    let subject: String
+    let startDate: Date
+    let endDate: Date
+    let location: String?
+    let notes: String?
+    let allDay: Bool
+    let modificationDate: Date?
+
+    var sourceKey: String {
+        let normalizedTitle = subject
+            .lowercased()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "]", with: "")
+            .replacingOccurrences(of: "\n", with: " ")
+        let startInterval = Int(startDate.timeIntervalSince1970)
+        return "apple:\(sourceCalendarID):\(startInterval):\(normalizedTitle)"
+    }
+}
+
 struct OutlookEventRecord: Hashable, Codable {
     let sourceCalendarID: String
     let sourceCalendarName: String
@@ -43,10 +66,14 @@ struct SyncWindow {
     let startDate: Date
     let endDate: Date
 
-    static func upcomingSevenDays(referenceDate: Date = Date(), calendar: Calendar = .current) -> SyncWindow {
+    static func upcomingDays(_ days: Int, referenceDate: Date = Date(), calendar: Calendar = .current) -> SyncWindow {
         let startDate = calendar.startOfDay(for: referenceDate)
-        let endDate = calendar.date(byAdding: .day, value: 7, to: startDate) ?? startDate.addingTimeInterval(7 * 24 * 60 * 60)
+        let endDate = calendar.date(byAdding: .day, value: days, to: startDate) ?? startDate.addingTimeInterval(TimeInterval(days * 24 * 60 * 60))
         return SyncWindow(startDate: startDate, endDate: endDate)
+    }
+
+    static func upcomingSevenDays(referenceDate: Date = Date(), calendar: Calendar = .current) -> SyncWindow {
+        upcomingDays(7, referenceDate: referenceDate, calendar: calendar)
     }
 
     func contains(_ date: Date) -> Bool {

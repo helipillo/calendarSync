@@ -5,12 +5,12 @@ struct MenuBarContentView: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("CalendarBridge")
                         .font(.headline)
-                    Text("Outlook to Apple Calendar sync")
+                    Text(appState.nextSyncCountdown)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -21,14 +21,14 @@ struct MenuBarContentView: View {
                 }
             }
 
-            GroupBox {
-                VStack(alignment: .leading, spacing: 8) {
-                    statusRow(title: "Outlook", value: appState.automationStatus)
-                    statusRow(title: "Source", value: appState.selectedOutlookCalendarName())
-                    statusRow(title: "Destination", value: appState.selectedAppleCalendarName())
-                    statusRow(title: "Last sync", value: lastSyncText)
+            if appState.upcomingEventsCount > 0 {
+                HStack {
+                    Image(systemName: "calendar.badge.clock")
+                        .foregroundStyle(.blue)
+                    Text("\(appState.upcomingEventsCount) events to sync")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             SyncConfigurationView(compact: true)
@@ -42,63 +42,20 @@ struct MenuBarContentView: View {
                 Button {
                     Task { await appState.syncNow() }
                 } label: {
-                    Label("Force Update", systemImage: "arrow.clockwise")
+                    Label("Sync Now", systemImage: "arrow.clockwise")
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(appState.isSyncing || !appState.settings.isConfigured)
 
-                Button("Refresh") {
-                    Task { await appState.refreshAll() }
-                }
-                .disabled(appState.isSyncing)
-            }
-
-            Divider()
-
-            HStack {
-                if #available(macOS 14.0, *) {
-                    SettingsLink {
-                        Label("Settings", systemImage: "gearshape")
-                    }
-                } else {
-                    Button {
-                        openSettingsWindow()
-                    } label: {
-                        Label("Settings", systemImage: "gearshape")
-                    }
-                }
                 Spacer()
-                Button("Quit") {
-                    NSApplication.shared.terminate(nil)
+
+                Toggle(isOn: $appState.showNotifications) {
+                    Image(systemName: "bell")
                 }
+                .toggleStyle(.button)
+                .controlSize(.small)
             }
         }
-        .padding(14)
-    }
-
-    private func statusRow(title: String, value: String) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title)
-                .foregroundStyle(.secondary)
-                .frame(width: 88, alignment: .leading)
-            Text(value)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .multilineTextAlignment(.leading)
-        }
-        .font(.caption)
-    }
-
-    private var lastSyncText: String {
-        guard let lastSyncAt = appState.settings.lastSyncAt else { return "Never" }
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return formatter.localizedString(for: lastSyncAt, relativeTo: Date())
-    }
-
-    private func openSettingsWindow() {
-        if !NSApplication.shared.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) {
-            _ = NSApplication.shared.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-        }
-        NSApplication.shared.activate(ignoringOtherApps: true)
+        .padding(16)
     }
 }

@@ -67,4 +67,6 @@ Note: this first public version is unsigned, so macOS may show a security prompt
 ---
 
 ## Future stable distribution (recommended)
-For frictionless install, add Apple Developer signing + notarization in a later release.
+For frictionless install, use the signed workflow:
+- `.github/workflows/macos-release-signed.yml`
+- setup guide: `docs/RELEASE_SIGNING.md`

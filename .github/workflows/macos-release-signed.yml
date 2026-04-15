@@ -1,0 +1,152 @@
+name: macOS Signed + Notarized Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-sign-notarize:
+    runs-on: macos-14
+
+    env:
+      APP_NAME: CalendarBridge
+      SCHEME: CalendarBridge
+      PROJECT: CalendarBridge.xcodeproj
+      CONFIGURATION: Release
+      APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+      APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Decode signing certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.MACOS_DEVELOPER_ID_P12_BASE64 }}" | base64 --decode > cert.p12
+
+      - name: Create temporary keychain and import cert
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          KEYCHAIN=build.keychain-db
+          security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" "$KEYCHAIN"
+
+          security import cert.p12 \
+            -k "$KEYCHAIN" \
+            -P "${{ secrets.MACOS_DEVELOPER_ID_P12_PASSWORD }}" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          security default-keychain -s "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -s \
+            -k "${{ secrets.KEYCHAIN_PASSWORD }}" "$KEYCHAIN"
+
+          SIGNING_IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN" | grep "Developer ID Application" | head -n1 | sed -E 's/.*"(.+)".*/\1/')
+          if [ -z "$SIGNING_IDENTITY" ]; then
+            echo "No Developer ID Application identity found"
+            exit 1
+          fi
+          echo "SIGNING_IDENTITY=$SIGNING_IDENTITY" >> "$GITHUB_ENV"
+
+      - name: Build app (Release)
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -archivePath "build/$APP_NAME.xcarchive" \
+            archive
+
+          cp -R "build/$APP_NAME.xcarchive/Products/Applications/$APP_NAME.app" "build/$APP_NAME.app"
+
+      - name: Codesign app (hardened runtime)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          codesign --force --deep --options runtime --timestamp \
+            --sign "$SIGNING_IDENTITY" \
+            "build/$APP_NAME.app"
+
+          codesign --verify --deep --strict --verbose=2 "build/$APP_NAME.app"
+          spctl --assess --type execute --verbose=2 "build/$APP_NAME.app"
+
+      - name: Create DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          hdiutil create \
+            -volname "$APP_NAME" \
+            -srcfolder "build/$APP_NAME.app" \
+            -ov -format UDZO \
+            "dist/$APP_NAME-${GITHUB_REF_NAME}-macos.dmg"
+
+      - name: Prepare notary API key
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/notary"
+          KEY_PATH="$RUNNER_TEMP/notary/AuthKey_${APPLE_API_KEY_ID}.p8"
+          printf '%s' "${{ secrets.APPLE_API_PRIVATE_KEY_P8 }}" > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+          echo "NOTARY_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
+      - name: Notarize DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun notarytool submit "dist/$APP_NAME-${GITHUB_REF_NAME}-macos.dmg" \
+            --key "$NOTARY_KEY_PATH" \
+            --key-id "$APPLE_API_KEY_ID" \
+            --issuer "$APPLE_API_ISSUER_ID" \
+            --wait
+
+      - name: Staple DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun stapler staple "dist/$APP_NAME-${GITHUB_REF_NAME}-macos.dmg"
+          xcrun stapler validate "dist/$APP_NAME-${GITHUB_REF_NAME}-macos.dmg"
+
+      - name: Generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          shasum -a 256 "dist/$APP_NAME-${GITHUB_REF_NAME}-macos.dmg" > dist/SHA256SUMS.txt
+
+      - name: Upload signed artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.dmg
+            dist/SHA256SUMS.txt
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Cleanup secrets
+        if: always()
+        shell: bash
+        run: |
+          rm -f cert.p12
+          rm -f "$NOTARY_KEY_PATH" || true
+          security delete-keychain build.keychain-db || true
