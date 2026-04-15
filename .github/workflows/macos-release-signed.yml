@@ -2,9 +2,6 @@ name: macOS Signed + Notarized Release
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*"
 
 permissions:
   contents: write
@@ -29,6 +26,38 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
+
+      - name: Validate required secrets
+        shell: bash
+        env:
+          MACOS_DEVELOPER_ID_P12_BASE64: ${{ secrets.MACOS_DEVELOPER_ID_P12_BASE64 }}
+          MACOS_DEVELOPER_ID_P12_PASSWORD: ${{ secrets.MACOS_DEVELOPER_ID_P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          APPLE_API_PRIVATE_KEY_P8: ${{ secrets.APPLE_API_PRIVATE_KEY_P8 }}
+        run: |
+          set -euo pipefail
+
+          missing=0
+          for name in \
+            MACOS_DEVELOPER_ID_P12_BASE64 \
+            MACOS_DEVELOPER_ID_P12_PASSWORD \
+            KEYCHAIN_PASSWORD \
+            APPLE_API_KEY_ID \
+            APPLE_API_ISSUER_ID \
+            APPLE_API_PRIVATE_KEY_P8; do
+            value="${!name}"
+            if [ -z "$value" ]; then
+              echo "::error::Missing required secret: $name"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo "Set required secrets in GitHub: Settings -> Secrets and variables -> Actions"
+            exit 1
+          fi
 
       - name: Decode signing certificate
         shell: bash
