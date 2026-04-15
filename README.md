@@ -1,37 +1,70 @@
 # CalendarBridge
 
-Native macOS menu bar app built with SwiftUI that syncs one Microsoft Outlook calendar into a selected Apple Calendar.
+CalendarBridge is a native macOS menu bar app that syncs events between calendars using EventKit.
 
-## Features
-- Menu bar app with native SwiftUI UI
-- Select Outlook source calendar
-- Select Apple Calendar destination calendar
-- Choose sync frequency: 1h, 4h, 12h, 24h
-- Force update button
-- Automatic scheduled sync
-- Syncs through macOS automation for Outlook and EventKit for Apple Calendar
-- Falls back to Outlook's local HxStore database when automation exposes calendars but not event contents
-- Mirrors recurring rules when Outlook exposes valid iCalendar recurrence data
+## What it does
+- Runs as a menu bar app (no main window)
+- Syncs from a selected source calendar to a destination calendar
+- Supports source type:
+  - Apple Calendar (recommended, including Exchange calendars visible in macOS Calendar)
+  - Outlook (legacy path)
+- Optional **bidirectional** mode for Apple calendars
+  - Edits sync both ways
+  - Deletions sync only **Source → Destination** (source is protected)
+- Sync window options: 7, 14, or 30 days
+- Sync frequency: 1h, 4h, 12h, 24h
+- Force sync from menu
 
 ## Requirements
 - macOS 13+
-- Microsoft Outlook for Mac installed
-- Apple Calendar access granted
-- Automation permission granted so the app can control Outlook
+- Calendar access granted
+- If using Outlook source: Outlook for Mac + automation permission
 
-## Open in Xcode
+## Build locally
+```bash
+xcodebuild \
+  -project CalendarBridge.xcodeproj \
+  -scheme CalendarBridge \
+  -configuration Debug \
+  -destination 'platform=macOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
+
+Open in Xcode:
 ```bash
 open CalendarBridge.xcodeproj
 ```
 
-## Build from terminal
+---
+
+## GitHub Releases (first releasable version)
+This repo includes a GitHub Actions workflow to build release artifacts on tag push.
+
+Workflow file:
+- `.github/workflows/macos-release.yml`
+
+Artifacts produced:
+- `CalendarBridge-<tag>-macos-unsigned.dmg`
+- `CalendarBridge-<tag>-macos-unsigned.zip`
+- `SHA256SUMS.txt`
+
+### Create a release
 ```bash
-xcodebuild -project CalendarBridge.xcodeproj -scheme CalendarBridge -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
+git tag v0.1.0
+git push origin v0.1.0
 ```
 
-## Notes
-- Recommended destination is a dedicated Apple Calendar like `Work Outlook Mirror`.
-- The app tracks events it created and updates or removes only those mirrored events.
-- If Outlook automation returns no events, CalendarBridge can use the local `HxStore.hxd` Outlook cache as a fallback.
-- HxStore fallback is heuristic. Subjects and start times are reliable enough for practical use, but end times may be estimated for some meetings.
-- Very complex recurring exceptions or edge cases from Outlook may still need future refinement.
+The workflow will build and publish a GitHub pre-release with artifacts.
+
+## Install (end users)
+1. Download `.dmg` (recommended) or `.zip` from GitHub Releases.
+2. Move `CalendarBridge.app` to `/Applications`.
+3. First launch: right-click app, choose **Open**.
+
+Note: this first public version is unsigned, so macOS may show a security prompt.
+
+---
+
+## Future stable distribution (recommended)
+For frictionless install, add Apple Developer signing + notarization in a later release.
