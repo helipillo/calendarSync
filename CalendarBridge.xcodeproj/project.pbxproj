@@ -12,6 +12,7 @@
 		6528778B4A13E93C98D07A8F /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD33C2A11DB908DC29E44B /* MenuBarContentView.swift */; };
 		6D6F871796A9955A80B23F9A /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6FB101AC8F413C2BCECC54 /* AppSettings.swift */; };
 		6D90F47A46DED5A9117D1FAA /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5201CE03699B164F49D6E295 /* SyncEngine.swift */; };
+		7828E8BB1E21531AB78DE744 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C7CAD51004BBA0FD5D49DED /* Assets.xcassets */; };
 		79B164928D7EEE94609D0147 /* OutlookFetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB5914E0C6AB886A82A36A5 /* OutlookFetchResult.swift */; };
 		7A40061B9A28D84680B4DB2D /* SyncMetadataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76E617E9A311F970A231708 /* SyncMetadataStore.swift */; };
 		7E39D6BEA3E1291DCA969164 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC92BAF37F08E111FFFD934 /* AppState.swift */; };
@@ -36,6 +37,7 @@
 		70C4BFB9B65CF7F8075EF5EE /* SyncScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncScheduler.swift; sourceTree = "<group>"; };
 		7A6FB101AC8F413C2BCECC54 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		9127992E9ACE571E1CE4BEAD /* ICalendarRecurrenceParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICalendarRecurrenceParser.swift; sourceTree = "<group>"; };
+		9C7CAD51004BBA0FD5D49DED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABD75C27B6BCA780D1BE618A /* CalendarModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarModels.swift; sourceTree = "<group>"; };
 		B8BD33C2A11DB908DC29E44B /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		BB2E9B8CD37CCED0EDE00F15 /* SyncConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncConfigurationView.swift; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 		FA6B368E5C61BA6DF69F79E4 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9C7CAD51004BBA0FD5D49DED /* Assets.xcassets */,
 				C029BD4F8DD17C03EC1BEFCD /* hxstore_extract.py */,
 			);
 			path = Resources;
@@ -184,6 +187,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7828E8BB1E21531AB78DE744 /* Assets.xcassets in Resources */,
 				47FA5D4C1D31BEEE90138C93 /* hxstore_extract.py in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
