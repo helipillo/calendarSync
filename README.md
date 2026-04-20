@@ -55,6 +55,23 @@ Use one of these:
 
 ---
 
+## Run locally
+
+Build and launch the app locally with:
+
+```bash
+./scripts/run-local.sh
+```
+
+Useful options:
+
+- `./scripts/run-local.sh --debug` to build Debug instead of Release
+- `./scripts/run-local.sh --signed` to allow code signing during the build
+
+Because CalendarBridge is a menu bar app, it launches into the macOS menu bar rather than the Dock.
+
+---
+
 ## Troubleshooting
 
 ### I do not see my calendars
