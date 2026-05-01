@@ -6,8 +6,7 @@ actor SyncEngine {
 
     init(
         appleCalendarService: AppleCalendarService,
-        outlookService: OutlookScriptService,
-        metadataStore: SyncMetadataStore
+        outlookService: OutlookScriptService
     ) {
         self.appleCalendarService = appleCalendarService
         self.outlookService = outlookService

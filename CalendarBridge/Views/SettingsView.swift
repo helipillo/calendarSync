@@ -8,7 +8,7 @@ struct SettingsView: View {
             Text("CalendarBridge")
                 .font(.largeTitle.bold())
 
-            Text("Sync one Outlook calendar into a dedicated Apple Calendar from a native macOS menu bar app.")
+            Text("Mirror events from one calendar into another from a native macOS menu bar app. Apple Calendar is the recommended source — including Exchange accounts added via Internet Accounts.")
                 .foregroundStyle(.secondary)
 
             Form {
@@ -17,8 +17,8 @@ struct SettingsView: View {
                 }
 
                 Section("Status") {
-                    LabeledContent("Outlook") {
-                        Text(appState.automationStatus)
+                    LabeledContent(appState.settings.sourceType.displayName) {
+                        Text(appState.sourceStatus)
                     }
                     LabeledContent("Last sync") {
                         Text(lastSyncText)
@@ -63,9 +63,9 @@ struct SettingsView: View {
                 }
 
                 Section("Notes") {
-                    Text("Recommended: create a dedicated Apple Calendar such as 'Work Outlook Mirror' and select it as the destination.")
-                    Text("The app reads Outlook using macOS automation and writes into Apple Calendar using EventKit permissions.")
-                    Text("Recurring events are mirrored using recurrence rules when Outlook exposes valid iCalendar data. Some complex recurring exceptions may still need future refinement.")
+                    Text("Recommended: create a dedicated Apple Calendar such as 'Work Mirror' and select it as the destination.")
+                    Text("Only events created by CalendarBridge are updated or removed in the destination calendar — your existing entries are left untouched.")
+                    Text("The Outlook source uses macOS automation; if Outlook isn't available, prefer the Apple Calendar source.")
                 }
             }
         }

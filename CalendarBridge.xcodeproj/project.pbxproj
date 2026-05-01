@@ -14,7 +14,6 @@
 		6D90F47A46DED5A9117D1FAA /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5201CE03699B164F49D6E295 /* SyncEngine.swift */; };
 		7828E8BB1E21531AB78DE744 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C7CAD51004BBA0FD5D49DED /* Assets.xcassets */; };
 		79B164928D7EEE94609D0147 /* OutlookFetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB5914E0C6AB886A82A36A5 /* OutlookFetchResult.swift */; };
-		7A40061B9A28D84680B4DB2D /* SyncMetadataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76E617E9A311F970A231708 /* SyncMetadataStore.swift */; };
 		7E39D6BEA3E1291DCA969164 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC92BAF37F08E111FFFD934 /* AppState.swift */; };
 		7ECA71091D9B67C6EC5BB3EE /* ICalendarRecurrenceParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9127992E9ACE571E1CE4BEAD /* ICalendarRecurrenceParser.swift */; };
 		95025893DBEC64B41F98D251 /* CalendarBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351747A586E8EDAF4581DB88 /* CalendarBridgeApp.swift */; };
@@ -44,7 +43,6 @@
 		BFB5914E0C6AB886A82A36A5 /* OutlookFetchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlookFetchResult.swift; sourceTree = "<group>"; };
 		C029BD4F8DD17C03EC1BEFCD /* hxstore_extract.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = hxstore_extract.py; sourceTree = "<group>"; };
 		E482A886CF03D442330E45EC /* AppleCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleCalendarService.swift; sourceTree = "<group>"; };
-		E76E617E9A311F970A231708 /* SyncMetadataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadataStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -113,7 +111,6 @@
 				9127992E9ACE571E1CE4BEAD /* ICalendarRecurrenceParser.swift */,
 				11538717F6417F7BF1D4682E /* OutlookScriptService.swift */,
 				5201CE03699B164F49D6E295 /* SyncEngine.swift */,
-				E76E617E9A311F970A231708 /* SyncMetadataStore.swift */,
 				70C4BFB9B65CF7F8075EF5EE /* SyncScheduler.swift */,
 			);
 			path = Services;
@@ -212,7 +209,6 @@
 				FD54AA569D779877D729BB35 /* SettingsView.swift in Sources */,
 				E5DC8B88EF170B9B5ACD3000 /* SyncConfigurationView.swift in Sources */,
 				6D90F47A46DED5A9117D1FAA /* SyncEngine.swift in Sources */,
-				7A40061B9A28D84680B4DB2D /* SyncMetadataStore.swift in Sources */,
 				D0269C7E3BE1FE32BF04534C /* SyncScheduler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

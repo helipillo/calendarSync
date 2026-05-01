@@ -11,7 +11,7 @@ final class AppState: ObservableObject {
     @Published private(set) var destinationAppleCalendars: [AppleCalendarRef] = []
     @Published private(set) var isSyncing = false
     @Published private(set) var lastSyncMessage = "Not synced yet"
-    @Published private(set) var automationStatus = "Waiting for calendar access"
+    @Published private(set) var sourceStatus = "Waiting for calendar access"
     @Published private(set) var calendarAccessGranted = false
     @Published private(set) var debugLog: [String] = []
     @Published private(set) var upcomingEventsCount: Int = 0
@@ -20,11 +20,9 @@ final class AppState: ObservableObject {
 
     private let appleCalendarService = AppleCalendarService()
     private let outlookService = OutlookScriptService()
-    private let metadataStore = SyncMetadataStore()
     private lazy var syncEngine = SyncEngine(
         appleCalendarService: appleCalendarService,
-        outlookService: outlookService,
-        metadataStore: metadataStore
+        outlookService: outlookService
     )
     private var scheduler: SyncScheduler?
     private var hasStarted = false
@@ -108,7 +106,12 @@ final class AppState: ObservableObject {
         log("Refreshing calendars and permissions")
         await requestCalendarAccessIfNeeded()
         await loadAppleCalendars()
-        await loadOutlookCalendars()
+        if settings.sourceType == .outlook {
+            await loadOutlookCalendars()
+        } else {
+            outlookCalendars = []
+            sourceStatus = calendarAccessGranted ? "Apple Calendar connected" : "Calendar access not granted"
+        }
         autoSelectDefaultsIfNeeded()
         await updateUpcomingEventsCount()
         log("Refresh complete. Source calendars=\(sourceAppleCalendars.count), Destination calendars=\(destinationAppleCalendars.count)")
@@ -134,11 +137,11 @@ final class AppState: ObservableObject {
     func loadOutlookCalendars() async {
         do {
             outlookCalendars = try await outlookService.fetchCalendars()
-            automationStatus = outlookCalendars.isEmpty ? "No Outlook calendars found" : "Outlook connected"
+            sourceStatus = outlookCalendars.isEmpty ? "No Outlook calendars found" : "Outlook connected"
             log("Loaded \(outlookCalendars.count) Outlook calendars")
         } catch {
             outlookCalendars = []
-            automationStatus = "Outlook access failed"
+            sourceStatus = "Outlook access failed"
             lastSyncMessage = "Failed to read Outlook calendars: \(error.localizedDescription)"
             log("Outlook calendar load error: \(error.localizedDescription)")
         }
@@ -334,13 +337,6 @@ final class AppState: ObservableObject {
     private static let logTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss"
-        return formatter
-    }()
-
-    private static let debugDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
         return formatter
     }()
 }

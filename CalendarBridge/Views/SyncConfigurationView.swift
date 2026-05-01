@@ -51,7 +51,9 @@ struct SyncConfigurationView: View {
                 Picker("Source calendar", selection: sourceAppleSelection) {
                     Text("Select a source calendar").tag("")
                     ForEach(appState.sourceAppleCalendars) { calendar in
-                        Text("\(calendar.title) · \(calendar.sourceTitle)").tag(calendar.id)
+                        Text("\(calendar.title) · \(calendar.sourceTitle)")
+                            .tag(calendar.id)
+                            .disabled(calendar.id == appState.settings.selectedAppleCalendarID)
                     }
                 }
                 .labelsHidden()
@@ -87,7 +89,10 @@ struct SyncConfigurationView: View {
             Picker("Destination calendar", selection: destinationSelection) {
                 Text("Select a destination calendar").tag("")
                 ForEach(appState.destinationAppleCalendars) { calendar in
-                    Text("\(calendar.title) · \(calendar.sourceTitle)").tag(calendar.id)
+                    Text("\(calendar.title) · \(calendar.sourceTitle)")
+                        .tag(calendar.id)
+                        .disabled(appState.settings.sourceType == .appleCalendar
+                                  && calendar.id == appState.settings.selectedSourceAppleCalendarID)
                 }
             }
             .labelsHidden()
